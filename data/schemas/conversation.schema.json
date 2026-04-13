@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Conversation",
+  "type": "object",
+  "required": ["session_id", "tenant_id", "messages"],
+  "properties": {
+    "session_id": { "type": "string" },
+    "tenant_id": { "type": "string" },
+    "messages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["role", "content", "timestamp"],
+        "properties": {
+          "role": { "type": "string", "enum": ["user", "assistant"] },
+          "content": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "language": { "type": "string", "enum": ["en", "es"] },
+              "intent": { "type": "string" },
+              "agent_used": { "type": "string" },
+              "products_mentioned": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "analytics": {
+      "type": "object",
+      "properties": {
+        "duration_seconds": { "type": "number" },
+        "messages_count": { "type": "integer" },
+        "images_analyzed": { "type": "integer" },
+        "products_recommended": { "type": "array", "items": { "type": "string" } },
+        "conversion": { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "christmas",
+  "name": "Christmas",
+  "emoji": "🎄",
+  "dateRange": { "start": "12-01", "end": "12-31" },
+  "overrides": {
+    "colors": {
+      "primary": "#C41E3A",
+      "secondary": "#165B33",
+      "accent": "#F8B229"
+    },
+    "avatar": {
+      "url": "/assets/seasons/flora-christmas.png",
+      "fallback": "🎄"
+    },
+    "messages": {
+      "welcome": {
+        "en": "Ho ho ho! 🎄 I'm Flora, spreading holiday plant joy!",
+        "es": "¡Jo jo jo! 🎄 ¡Soy Flora, trayendo alegría navideña a tus plantas!"
+      }
+    }
+  }
+}

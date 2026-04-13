@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Plant",
+  "type": "object",
+  "required": ["id", "name", "care", "source", "created_at"],
+  "properties": {
+    "id": { "type": "string", "description": "URL slug, e.g. monstera-deliciosa" },
+    "shopify_id": { "type": "string", "description": "gid://shopify/Product/..." },
+    "name": {
+      "type": "object",
+      "properties": {
+        "common": { "type": "string" },
+        "scientific": { "type": "string" },
+        "aliases": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "care": {
+      "type": "object",
+      "properties": {
+        "light": {
+          "type": "object",
+          "properties": {
+            "lux_min": { "type": "number" },
+            "lux_max": { "type": "number" },
+            "type": { "type": "string", "enum": ["low", "medium", "bright-indirect", "full-sun"] },
+            "description": {
+              "type": "object",
+              "properties": {
+                "en": { "type": "string" },
+                "es": { "type": "string" }
+              }
+            }
+          }
+        },
+        "watering": {
+          "type": "object",
+          "properties": {
+            "frequency": { "type": "string" },
+            "humidity": { "type": "string" },
+            "description": {
+              "type": "object",
+              "properties": {
+                "en": { "type": "string" },
+                "es": { "type": "string" }
+              }
+            }
+          }
+        },
+        "temperature": {
+          "type": "object",
+          "properties": {
+            "min_f": { "type": "number" },
+            "max_f": { "type": "number" },
+            "ideal_f": { "type": "array", "items": { "type": "number" }, "maxItems": 2 }
+          }
+        },
+        "difficulty": {
+          "type": "object",
+          "properties": {
+            "level": { "type": "string", "enum": ["easy", "moderate", "hard", "expert"] },
+            "score": { "type": "integer", "minimum": 1, "maximum": 5 }
+          }
+        },
+        "toxicity": {
+          "type": "object",
+          "properties": {
+            "pets": { "type": "boolean" },
+            "humans": { "type": "boolean" },
+            "severity": { "type": "string", "enum": ["none", "mild", "moderate", "severe"] }
+          }
+        },
+        "hardiness_zone": {
+          "type": "object",
+          "properties": {
+            "usda": { "type": "array", "items": { "type": "string" } },
+            "min_zone": { "type": "string" }
+          }
+        }
+      }
+    },
+    "problems": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "cause": { "type": "string" },
+          "solution": {
+            "type": "object",
+            "properties": {
+              "en": { "type": "string" },
+              "es": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "source": { "type": "string", "enum": ["perenual", "plantnet", "manual", "claude"] },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" }
+  }
+}

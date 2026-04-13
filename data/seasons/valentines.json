@@ -1,0 +1,23 @@
+{
+  "id": "valentines",
+  "name": "Valentine's Day",
+  "emoji": "💝",
+  "dateRange": { "start": "02-01", "end": "02-15" },
+  "overrides": {
+    "colors": {
+      "primary": "#E91E8C",
+      "secondary": "#FF6B9D",
+      "accent": "#FF1744"
+    },
+    "avatar": {
+      "url": "/assets/seasons/flora-valentines.png",
+      "fallback": "💝"
+    },
+    "messages": {
+      "welcome": {
+        "en": "Love is in bloom! 💝 I'm Flora — find the perfect plant for your Valentine!",
+        "es": "¡El amor está en flor! 💝 Soy Flora — ¡encuentra la planta perfecta para tu San Valentín!"
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "anthropic": {
+    "api_key": "ANTHROPIC_API_KEY",
+    "base_url": "https://api.anthropic.com"
+  },
+  "perenual": {
+    "api_key": "PERENUAL_API_KEY",
+    "base_url": "https://perenual.com/api",
+    "rate_limit": "100/day"
+  },
+  "plantnet": {
+    "api_key": "PLANTNET_API_KEY",
+    "base_url": "https://my-api.plantnet.org/v2",
+    "rate_limit": "500/day"
+  },
+  "shopify": {
+    "shop_domain": "SHOPIFY_SHOP_DOMAIN",
+    "storefront_token": "SHOPIFY_STOREFRONT_TOKEN",
+    "admin_token": "SHOPIFY_ADMIN_TOKEN",
+    "api_version": "2024-01"
+  },
+  "n8n": {
+    "base_url": "N8N_BASE_URL",
+    "webhook_chat": "N8N_WEBHOOK_CHAT",
+    "webhook_image": "N8N_WEBHOOK_IMAGE",
+    "webhook_light": "N8N_WEBHOOK_LIGHT"
+  }
+}

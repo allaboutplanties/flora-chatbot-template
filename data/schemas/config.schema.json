@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FloraConfig",
+  "type": "object",
+  "properties": {
+    "bot": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "vertical": { "type": "string", "enum": ["plants", "pets", "generic"] },
+        "personality": {
+          "type": "object",
+          "properties": {
+            "tone": { "type": "string", "enum": ["friendly", "professional", "casual"] },
+            "style": { "type": "string", "enum": ["expert", "assistant", "companion"] },
+            "emoji_usage": { "type": "string", "enum": ["none", "minimal", "moderate", "heavy"] }
+          }
+        }
+      }
+    },
+    "visual": {
+      "type": "object",
+      "properties": {
+        "colors": {
+          "type": "object",
+          "properties": {
+            "primary": { "type": "string" },
+            "secondary": { "type": "string" },
+            "accent": { "type": "string" },
+            "background": { "type": "string" },
+            "text": { "type": "string" }
+          }
+        },
+        "widget": {
+          "type": "object",
+          "properties": {
+            "size": { "type": "string", "enum": ["compact", "normal", "large"] },
+            "position": { "type": "string", "enum": ["bottom-right", "bottom-left", "top-right", "top-left"] },
+            "mode": { "type": "string", "enum": ["floating", "side-panel", "fullscreen", "embed"] }
+          }
+        }
+      }
+    },
+    "language": {
+      "type": "object",
+      "properties": {
+        "default": { "type": "string" },
+        "supported": { "type": "array", "items": { "type": "string" } },
+        "detection": { "type": "string", "enum": ["auto", "manual"] }
+      }
+    },
+    "features": {
+      "type": "object",
+      "properties": {
+        "vision": { "type": "boolean" },
+        "light_meter": { "type": "boolean" },
+        "orders": { "type": "boolean" },
+        "seasonal": { "type": "boolean" }
+      }
+    }
+  }
+}

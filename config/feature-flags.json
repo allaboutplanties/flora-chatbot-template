@@ -1,0 +1,15 @@
+{
+  "vision": true,
+  "light_meter": true,
+  "orders_tracking": true,
+  "seasonal_themes": true,
+  "multi_language": true,
+  "cache": true,
+  "prompt_injection_filter": true,
+  "rate_limiting": true,
+  "image_upload": true,
+  "product_cards": true,
+  "admin_panel": false,
+  "white_label": false,
+  "analytics_export": false
+}

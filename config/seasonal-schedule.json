@@ -1,0 +1,11 @@
+{
+  "auto_switch": true,
+  "schedule": [
+    { "theme": "valentines",  "start": "02-01", "end": "02-15" },
+    { "theme": "spring",      "start": "03-20", "end": "06-20" },
+    { "theme": "summer",      "start": "06-21", "end": "09-22" },
+    { "theme": "halloween",   "start": "10-15", "end": "11-01" },
+    { "theme": "christmas",   "start": "12-01", "end": "12-31" }
+  ],
+  "fallback": "default"
+}

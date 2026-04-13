@@ -1,0 +1,17 @@
+{
+  "models": {
+    "default": "claude-sonnet-4-6",
+    "vision": "claude-sonnet-4-6",
+    "orchestrator": "claude-sonnet-4-6",
+    "complex": "claude-opus-4-6"
+  },
+  "routing": {
+    "use_opus_for": ["complex_diagnosis", "multi_agent_coordination"],
+    "use_sonnet_for": ["chat", "vision", "light", "orders", "cache"]
+  },
+  "limits": {
+    "max_tokens": 1024,
+    "temperature": 0.7,
+    "timeout_ms": 30000
+  }
+}

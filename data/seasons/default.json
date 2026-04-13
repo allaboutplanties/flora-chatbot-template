@@ -1,0 +1,22 @@
+{
+  "id": "default",
+  "name": "Default",
+  "emoji": "🌿",
+  "overrides": {
+    "colors": {
+      "primary": "#2D5A27",
+      "secondary": "#4A7C43",
+      "accent": "#8FBC8F"
+    },
+    "avatar": {
+      "url": "/assets/flora-avatar.png",
+      "fallback": "🌿"
+    },
+    "messages": {
+      "welcome": {
+        "en": "Hi! I'm Flora 🌿 How can I help you with your plants today?",
+        "es": "¡Hola! Soy Flora 🌿 ¿En qué puedo ayudarte con tus plantas hoy?"
+      }
+    }
+  }
+}

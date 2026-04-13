@@ -1,0 +1,23 @@
+{
+  "id": "halloween",
+  "name": "Halloween",
+  "emoji": "🎃",
+  "dateRange": { "start": "10-15", "end": "11-01" },
+  "overrides": {
+    "colors": {
+      "primary": "#FF6B35",
+      "secondary": "#1A1A2E",
+      "accent": "#E94560"
+    },
+    "avatar": {
+      "url": "/assets/seasons/flora-halloween.png",
+      "fallback": "🎃"
+    },
+    "messages": {
+      "welcome": {
+        "en": "Boo! 🎃 I'm Flora, your spooky plant expert!",
+        "es": "¡Buu! 🎃 ¡Soy Flora, tu experta en plantas espeluznante!"
+      }
+    }
+  }
+}
