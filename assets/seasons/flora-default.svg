@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <circle cx="50" cy="50" r="48" fill="#F0F5EF" stroke="#2D5A27" stroke-width="3"/>
+  <!-- Leaf left -->
+  <ellipse cx="35" cy="45" rx="14" ry="22" fill="#4A7C43" transform="rotate(-30 35 45)"/>
+  <!-- Leaf right -->
+  <ellipse cx="65" cy="45" rx="14" ry="22" fill="#2D5A27" transform="rotate(30 65 45)"/>
+  <!-- Stem -->
+  <line x1="50" y1="75" x2="50" y2="38" stroke="#2D5A27" stroke-width="4" stroke-linecap="round"/>
+  <!-- Top leaf -->
+  <ellipse cx="50" cy="32" rx="10" ry="16" fill="#8FBC8F"/>
+  <!-- Center dot -->
+  <circle cx="50" cy="50" r="5" fill="#F8FAF7"/>
+</svg>

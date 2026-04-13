@@ -1,0 +1,23 @@
+{
+  "id": "summer",
+  "name": "Summer",
+  "emoji": "☀️",
+  "dateRange": { "start": "06-21", "end": "09-22" },
+  "overrides": {
+    "colors": {
+      "primary": "#F57F17",
+      "secondary": "#FF8F00",
+      "accent": "#FFE082"
+    },
+    "avatar": {
+      "url": "/assets/seasons/flora-summer.svg",
+      "fallback": "☀️"
+    },
+    "messages": {
+      "welcome": {
+        "en": "Summer vibes! ☀️ I'm Flora — keep your plants thriving in the heat!",
+        "es": "¡Vibras de verano! ☀️ Soy Flora — ¡mantén tus plantas saludables en el calor!"
+      }
+    }
+  }
+}

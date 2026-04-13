@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <circle cx="50" cy="50" r="48" fill="#FFF8FC" stroke="#C2185B" stroke-width="3"/>
+  <!-- Cherry blossom petals -->
+  <ellipse cx="50" cy="28" rx="9" ry="14" fill="#F8BBD0" transform="rotate(0 50 50)"/>
+  <ellipse cx="50" cy="28" rx="9" ry="14" fill="#F48FB1" transform="rotate(72 50 50)"/>
+  <ellipse cx="50" cy="28" rx="9" ry="14" fill="#F8BBD0" transform="rotate(144 50 50)"/>
+  <ellipse cx="50" cy="28" rx="9" ry="14" fill="#F48FB1" transform="rotate(216 50 50)"/>
+  <ellipse cx="50" cy="28" rx="9" ry="14" fill="#F8BBD0" transform="rotate(288 50 50)"/>
+  <!-- Center -->
+  <circle cx="50" cy="50" r="10" fill="#FFEB3B"/>
+  <!-- Stamens -->
+  <line x1="50" y1="42" x2="50" y2="38" stroke="#FF6B9D" stroke-width="1.5"/>
+  <line x1="50" y1="42" x2="54" y2="39" stroke="#FF6B9D" stroke-width="1.5"/>
+  <line x1="50" y1="42" x2="46" y2="39" stroke="#FF6B9D" stroke-width="1.5"/>
+  <circle cx="50" cy="37" r="2" fill="#C2185B"/>
+  <circle cx="54" cy="38" r="2" fill="#C2185B"/>
+  <circle cx="46" cy="38" r="2" fill="#C2185B"/>
+</svg>

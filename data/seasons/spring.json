@@ -1,0 +1,23 @@
+{
+  "id": "spring",
+  "name": "Spring",
+  "emoji": "🌸",
+  "dateRange": { "start": "03-20", "end": "06-20" },
+  "overrides": {
+    "colors": {
+      "primary": "#C2185B",
+      "secondary": "#E91E8C",
+      "accent": "#F8BBD0"
+    },
+    "avatar": {
+      "url": "/assets/seasons/flora-spring.svg",
+      "fallback": "🌸"
+    },
+    "messages": {
+      "welcome": {
+        "en": "Spring is here! 🌸 I'm Flora — let's find your perfect blooming plant!",
+        "es": "¡Llegó la primavera! 🌸 Soy Flora — ¡encontremos tu planta perfecta en flor!"
+      }
+    }
+  }
+}
