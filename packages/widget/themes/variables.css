@@ -1,0 +1,25 @@
+/* Flora Widget — CSS Variables */
+:root {
+  --flora-primary:       #2D5A27;
+  --flora-secondary:     #4A7C43;
+  --flora-accent:        #8FBC8F;
+  --flora-bg:            #FFFFFF;
+  --flora-surface:       #F8FAF7;
+  --flora-border:        #E2EDE0;
+  --flora-text:          #333333;
+  --flora-text-muted:    #6B7280;
+  --flora-text-inverse:  #FFFFFF;
+  --flora-user-bubble:   #2D5A27;
+  --flora-bot-bubble:    #F0F5EF;
+  --flora-shadow:        0 8px 32px rgba(0,0,0,0.12);
+  --flora-shadow-sm:     0 2px 8px rgba(0,0,0,0.08);
+  --flora-radius:        16px;
+  --flora-radius-sm:     8px;
+  --flora-radius-bubble: 18px;
+  --flora-font:          system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --flora-font-size:     14px;
+  --flora-transition:    0.25s ease;
+  --flora-z-index:       999999;
+  --flora-width:         380px;
+  --flora-height:        580px;
+}
