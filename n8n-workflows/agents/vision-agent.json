@@ -1,0 +1,67 @@
+{
+  "name": "Flora — Vision Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "flora-image",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-image",
+      "name": "Webhook Image",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "SECURITY_GATE_WORKFLOW_ID",
+        "options": {}
+      },
+      "id": "security-gate",
+      "name": "Security Gate",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "model": "claude-sonnet-4-6",
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "={{ 'Analiza esta imagen de planta. Identifica la especie, diagnostica problemas si los hay, y responde en ' + $json.body.language + '. Imagen: data:' + $json.body.image.mimeType + ';base64,' + $json.body.image.base64 }}"
+            }
+          ]
+        },
+        "options": {
+          "systemMessage": "Eres el agente de visión de Flora. Analizas imágenes de plantas para:\n1. Identificar la especie (nombre común y científico)\n2. Diagnosticar problemas (hojas amarillas, manchas, plagas)\n3. Analizar espacios para estimar nivel de luz\n\nFormato de respuesta para identificación:\n🔍 **Identificación**: {nombre}\n📊 **Confianza**: Alta/Media/Baja\n💡 **Cuidados básicos**: luz, riego, dificultad\n\nFormato para diagnóstico:\n🩺 **Problema**: {descripción}\n🔬 **Causa**: {explicación}\n💊 **Solución**: {pasos}"
+        }
+      },
+      "id": "claude-vision",
+      "name": "Claude Vision",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { reply: $json.content[0].text, agent_used: 'vision_agent' } }}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Image": { "main": [[{ "node": "Security Gate", "type": "main", "index": 0 }]] },
+    "Security Gate": { "main": [[{ "node": "Claude Vision", "type": "main", "index": 0 }]] },
+    "Claude Vision": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

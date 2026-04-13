@@ -1,0 +1,69 @@
+{
+  "name": "Flora — Orders Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst { orderNumber, email, language } = body;\n\nif (!orderNumber && !email) {\n  return [{ json: {\n    error: true,\n    reply: language === 'es'\n      ? 'Por favor comparte tu número de orden o email para rastrear tu pedido.'\n      : 'Please share your order number or email to track your order.'\n  }}];\n}\n\nreturn [{ json: { orderNumber, email, language, shopDomain: process.env.SHOPIFY_SHOP_DOMAIN } }];"
+      },
+      "id": "validate-input",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://{{ $json.shopDomain }}/admin/api/2024-01/orders.json?name={{ $json.orderNumber ? '%23' + $json.orderNumber : '' }}&email={{ $json.email || '' }}&status=any&fields=id,name,financial_status,fulfillment_status,tracking_url,tracking_number,created_at",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "shopify-order",
+      "name": "Get Shopify Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300],
+      "credentials": {
+        "httpHeaderAuth": { "id": "shopify-admin", "name": "Shopify Admin" }
+      }
+    },
+    {
+      "parameters": {
+        "model": "claude-sonnet-4-6",
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "={{ 'Orden de Shopify: ' + JSON.stringify($json.orders) + '. Responde en ' + $('Validate Input').first().json.language + ' de forma amigable informando el estado del pedido.' }}"
+            }
+          ]
+        },
+        "options": {
+          "systemMessage": "Eres el agente de órdenes de Flora. Informa el estado de pedidos de forma amigable. Incluye número de orden, estado de pago, estado de envío y link de tracking si existe."
+        }
+      },
+      "id": "claude-orders",
+      "name": "Claude Orders",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { reply: $json.content[0].text, agent_used: 'orders_agent' } }}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Validate Input": { "main": [[{ "node": "Get Shopify Order", "type": "main", "index": 0 }]] },
+    "Get Shopify Order": { "main": [[{ "node": "Claude Orders", "type": "main", "index": 0 }]] },
+    "Claude Orders": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

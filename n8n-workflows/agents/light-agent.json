@@ -1,0 +1,78 @@
+{
+  "name": "Flora — Light Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "flora-light",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-light",
+      "name": "Webhook Light",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "SECURITY_GATE_WORKFLOW_ID",
+        "options": {}
+      },
+      "id": "security-gate",
+      "name": "Security Gate",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst lux = body.lux;\nconst lang = body.language || 'en';\n\nlet lightType, plants;\n\nif (lux === undefined) {\n  return [{ json: { mode: 'vision', lang, body } }];\n}\n\nif (lux < 500) {\n  lightType = lang === 'es' ? 'Poca luz' : 'Low light';\n  plants = ['Pothos', 'ZZ Plant', 'Snake Plant', 'Cast Iron Plant', 'Dracaena'];\n} else if (lux < 2500) {\n  lightType = lang === 'es' ? 'Luz media' : 'Medium light';\n  plants = ['Monstera', 'Philodendron', 'Peace Lily', 'Chinese Evergreen', 'Dumb Cane'];\n} else if (lux < 10000) {\n  lightType = lang === 'es' ? 'Luz indirecta brillante' : 'Bright indirect light';\n  plants = ['Fiddle Leaf Fig', 'Bird of Paradise', 'Rubber Plant', 'Alocasia', 'Calathea'];\n} else {\n  lightType = lang === 'es' ? 'Sol directo' : 'Full sun';\n  plants = ['Cactus', 'Succulents', 'Herbs', 'Aloe Vera', 'Lavender'];\n}\n\nreturn [{ json: { lux, lightType, plants, lang } }];"
+      },
+      "id": "classify-light",
+      "name": "Classify Light",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "model": "claude-sonnet-4-6",
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "={{ 'El espacio tiene ' + $json.lux + ' lux (' + $json.lightType + '). Recomienda plantas ideales de esta lista: ' + $json.plants.join(', ') + '. Responde en ' + $json.lang + ' con formato amigable con emojis.' }}"
+            }
+          ]
+        },
+        "options": {
+          "systemMessage": "Eres el agente de luz de Flora. Recomiendas plantas según el nivel de luz disponible. Sé amigable, usa emojis, incluye 3 recomendaciones con razones breves."
+        }
+      },
+      "id": "claude-light",
+      "name": "Claude Light",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { reply: $json.content[0].text, agent_used: 'light_agent', lux: $('Classify Light').first().json.lux, light_type: $('Classify Light').first().json.lightType } }}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Light": { "main": [[{ "node": "Security Gate", "type": "main", "index": 0 }]] },
+    "Security Gate": { "main": [[{ "node": "Classify Light", "type": "main", "index": 0 }]] },
+    "Classify Light": { "main": [[{ "node": "Claude Light", "type": "main", "index": 0 }]] },
+    "Claude Light": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

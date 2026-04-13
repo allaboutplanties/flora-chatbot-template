@@ -1,0 +1,73 @@
+{
+  "name": "Flora — Enrichment Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://perenual.com/api/species-list?key={{ $env.PERENUAL_API_KEY }}&q={{ encodeURIComponent($json.plantName) }}&page=1",
+        "options": {}
+      },
+      "id": "perenual-search",
+      "name": "Perenual Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 200]
+    },
+    {
+      "parameters": {
+        "url": "=https://perenual.com/api/species/details/{{ $json.data[0].id }}?key={{ $env.PERENUAL_API_KEY }}",
+        "options": {}
+      },
+      "id": "perenual-detail",
+      "name": "Perenual Detail",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const perenual = $input.first().json;\nconst plantName = $('Perenual Search').first().json.data?.[0]?.common_name || '';\n\nconst entry = {\n  id: plantName.toLowerCase().replace(/\\s+/g, '-'),\n  name: {\n    common: perenual.common_name || plantName,\n    scientific: perenual.scientific_name?.[0] || '',\n    aliases: perenual.other_name || []\n  },\n  care: {\n    light: {\n      type: perenual.sunlight?.[0] || 'medium',\n      description: { en: (perenual.sunlight || []).join(', '), es: '' }\n    },\n    watering: {\n      frequency: perenual.watering || 'regular',\n      description: { en: perenual.watering || '', es: '' }\n    },\n    toxicity: {\n      pets: perenual.poisonous_to_pets === 1,\n      humans: perenual.poisonous_to_humans === 1,\n      severity: perenual.poisonous_to_pets === 1 ? 'moderate' : 'none'\n    }\n  },\n  source: 'perenual'\n};\n\nreturn [{ json: entry }];"
+      },
+      "id": "normalize-data",
+      "name": "Normalize Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.N8N_BASE_URL }}/webhook/flora-cache",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "operation", "value": "SET" },
+            { "name": "data", "value": "={{ $json }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "save-to-cache",
+      "name": "Save to Cache",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { found: true, data: $('Normalize Data').first().json, source: 'perenual', cached: true } }}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1340, 200]
+    }
+  ],
+  "connections": {
+    "Perenual Search": { "main": [[{ "node": "Perenual Detail", "type": "main", "index": 0 }]] },
+    "Perenual Detail": { "main": [[{ "node": "Normalize Data", "type": "main", "index": 0 }]] },
+    "Normalize Data": { "main": [[{ "node": "Save to Cache", "type": "main", "index": 0 }]] },
+    "Save to Cache": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}
