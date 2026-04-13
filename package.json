@@ -1,0 +1,19 @@
+{
+  "name": "flora-chatbot-template",
+  "version": "1.0.0",
+  "description": "Modular AI chatbot template for Shopify stores — multi-niche, agentic workflows, smart cache",
+  "main": "packages/core/engine/flora-engine.js",
+  "scripts": {
+    "dev:widget": "node scripts/dev-widget.js",
+    "build": "node scripts/build.js",
+    "deploy:shopify": "node scripts/deploy-shopify.js",
+    "export:n8n": "node scripts/export-n8n.js",
+    "test": "node --test tests/"
+  },
+  "keywords": ["chatbot", "shopify", "ai", "claude", "n8n", "plants"],
+  "author": "All About Planties™",
+  "license": "SEE LICENSE IN LICENSE-MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

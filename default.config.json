@@ -1,0 +1,320 @@
+{
+  "$schema": "./schemas/config.schema.json",
+  "version": "1.0.0",
+  "tenant": {
+    "id": "allaboutplanties",
+    "name": "All About Planties™",
+    "domain": "allaboutplanties.com",
+    "vertical": "plants"
+  },
+  "bot": {
+    "name": "Flora",
+    "avatar": {
+      "type": "custom",
+      "url": "/assets/flora-avatar.png",
+      "fallback": "🌿"
+    },
+    "personality": {
+      "tone": "friendly",
+      "style": "expert",
+      "emoji_usage": "moderate"
+    }
+  },
+  "visual": {
+    "colors": {
+      "primary": "#2D5A27",
+      "secondary": "#4A7C43",
+      "accent": "#8FBC8F",
+      "background": "#FFFFFF",
+      "surface": "#F5F9F4",
+      "text": {
+        "primary": "#333333",
+        "secondary": "#666666",
+        "inverse": "#FFFFFF"
+      },
+      "status": {
+        "success": "#28A745",
+        "warning": "#FFC107",
+        "error": "#DC3545",
+        "info": "#17A2B8"
+      }
+    },
+    "typography": {
+      "fontFamily": {
+        "primary": "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        "mono": "'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace"
+      },
+      "fontSize": {
+        "xs": "11px",
+        "sm": "12px",
+        "base": "14px",
+        "lg": "16px",
+        "xl": "18px",
+        "2xl": "24px"
+      },
+      "fontWeight": {
+        "normal": 400,
+        "medium": 500,
+        "bold": 600
+      },
+      "lineHeight": {
+        "tight": 1.25,
+        "normal": 1.5,
+        "relaxed": 1.75
+      }
+    },
+    "borders": {
+      "radius": {
+        "sm": "4px",
+        "md": "8px",
+        "lg": "16px",
+        "xl": "24px",
+        "full": "9999px"
+      },
+      "style": "rounded",
+      "width": "1px"
+    },
+    "shadows": {
+      "sm": "0 1px 2px rgba(0,0,0,0.05)",
+      "md": "0 4px 6px rgba(0,0,0,0.1)",
+      "lg": "0 10px 15px rgba(0,0,0,0.1)",
+      "xl": "0 20px 25px rgba(0,0,0,0.15)"
+    },
+    "animations": {
+      "enabled": true,
+      "duration": {
+        "fast": "150ms",
+        "normal": "300ms",
+        "slow": "500ms"
+      },
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)"
+    }
+  },
+  "widget": {
+    "mode": "floating",
+    "size": "normal",
+    "position": "bottom-right",
+    "offset": {
+      "x": 20,
+      "y": 20
+    },
+    "zIndex": 9999,
+    "button": {
+      "size": 60,
+      "icon": "chat",
+      "pulse": true,
+      "badge": {
+        "enabled": true,
+        "position": "top-right"
+      }
+    },
+    "panel": {
+      "width": 380,
+      "height": 600,
+      "maxHeight": "80vh"
+    },
+    "header": {
+      "showAvatar": true,
+      "showStatus": true,
+      "showMinimize": true,
+      "showClose": true
+    },
+    "input": {
+      "placeholder": {
+        "en": "Type your message...",
+        "es": "Escribe tu mensaje..."
+      },
+      "showImageUpload": true,
+      "showLightMeter": true,
+      "maxLength": 1000
+    },
+    "features": {
+      "imageUpload": true,
+      "lightMeter": true,
+      "orderTracking": true,
+      "productCards": true,
+      "quickReplies": true,
+      "typing_indicator": true,
+      "read_receipts": false,
+      "sound_notifications": false
+    }
+  },
+  "messages": {
+    "welcome": {
+      "en": "Hi! I'm Flora 🌿 How can I help you with your plants today?",
+      "es": "¡Hola! Soy Flora 🌿 ¿En qué puedo ayudarte con tus plantas hoy?"
+    },
+    "fallback": {
+      "en": "I'm not sure I understood that. Could you try rephrasing?",
+      "es": "No estoy segura de haber entendido. ¿Podrías reformular?"
+    },
+    "error": {
+      "en": "Oops! Something went wrong. Please try again.",
+      "es": "¡Ups! Algo salió mal. Por favor intenta de nuevo."
+    },
+    "offline": {
+      "en": "I'm currently offline. Please try again later.",
+      "es": "Estoy desconectada. Por favor intenta más tarde."
+    },
+    "typing": {
+      "en": "Flora is typing...",
+      "es": "Flora está escribiendo..."
+    },
+    "image_upload": {
+      "en": "Upload a photo of your plant",
+      "es": "Sube una foto de tu planta"
+    },
+    "light_meter": {
+      "en": "Measure light in your space",
+      "es": "Mide la luz de tu espacio"
+    }
+  },
+  "faqs": [
+    {
+      "id": "track-order",
+      "question": {
+        "en": "How do I track my order?",
+        "es": "¿Cómo rastreo mi pedido?"
+      },
+      "answer": {
+        "en": "Just share your email address or order number and I'll look it up for you!",
+        "es": "¡Solo comparte tu email o número de orden y lo buscaré para ti!"
+      },
+      "triggers": ["order", "track", "shipping", "pedido", "envío", "rastrear"]
+    },
+    {
+      "id": "plant-care",
+      "question": {
+        "en": "How do I care for my new plant?",
+        "es": "¿Cómo cuido mi nueva planta?"
+      },
+      "answer": {
+        "en": "Tell me which plant you have and I'll give you specific care tips!",
+        "es": "¡Dime qué planta tienes y te daré consejos específicos!"
+      },
+      "triggers": ["care", "water", "light", "cuidar", "regar", "luz"]
+    }
+  ],
+  "language": {
+    "default": "en",
+    "supported": ["en", "es"],
+    "detection": {
+      "method": "auto",
+      "priority": ["browser", "geolocation", "message"]
+    },
+    "fallback": "en"
+  },
+  "seasonal": {
+    "enabled": true,
+    "autoSwitch": true,
+    "current": "default",
+    "schedule": [
+      {
+        "theme": "halloween",
+        "start": "10-15",
+        "end": "11-01"
+      },
+      {
+        "theme": "christmas",
+        "start": "12-01",
+        "end": "12-31"
+      },
+      {
+        "theme": "valentines",
+        "start": "02-07",
+        "end": "02-15"
+      },
+      {
+        "theme": "spring",
+        "start": "03-20",
+        "end": "06-20"
+      },
+      {
+        "theme": "summer",
+        "start": "06-21",
+        "end": "09-22"
+      }
+    ]
+  },
+  "integrations": {
+    "shopify": {
+      "enabled": true,
+      "store": "allaboutplanties.myshopify.com",
+      "features": {
+        "productCards": true,
+        "orderTracking": true,
+        "inventory": true,
+        "addToCart": true
+      }
+    },
+    "n8n": {
+      "enabled": true,
+      "baseUrl": "https://flow.allaboutplanties.com",
+      "webhooks": {
+        "chat": "/webhook/flora/chat",
+        "image": "/webhook/flora/image",
+        "light": "/webhook/flora/light",
+        "analytics": "/webhook/flora/analytics"
+      }
+    },
+    "analytics": {
+      "enabled": true,
+      "providers": ["internal", "clarity"],
+      "events": {
+        "conversation_start": true,
+        "conversation_end": true,
+        "message_sent": true,
+        "image_uploaded": true,
+        "product_clicked": true,
+        "order_tracked": true
+      }
+    }
+  },
+  "models": {
+    "default": "sonnet",
+    "available": {
+      "sonnet": {
+        "id": "claude-sonnet-4-20250514",
+        "name": "Claude Sonnet 4",
+        "use_for": ["chat", "orders", "faqs"]
+      },
+      "opus": {
+        "id": "claude-opus-4-20250514",
+        "name": "Claude Opus 4",
+        "use_for": ["vision", "diagnostics", "light"]
+      }
+    },
+    "routing": {
+      "chat": "sonnet",
+      "vision": "opus",
+      "light": "opus",
+      "orders": "sonnet",
+      "enrichment": "sonnet"
+    }
+  },
+  "cache": {
+    "enabled": true,
+    "ttl": {
+      "plants": 2592000,
+      "products": 3600,
+      "sessions": 86400
+    },
+    "strategy": "local-first",
+    "fallback_to_api": true
+  },
+  "limits": {
+    "messages_per_session": 50,
+    "images_per_session": 5,
+    "session_duration_minutes": 60,
+    "message_max_length": 1000,
+    "image_max_size_mb": 5
+  },
+  "premium": {
+    "seasonal_themes": true,
+    "white_label": false,
+    "multi_language": false,
+    "admin_panel": true,
+    "advanced_analytics": true,
+    "priority_support": false
+  }
+}
