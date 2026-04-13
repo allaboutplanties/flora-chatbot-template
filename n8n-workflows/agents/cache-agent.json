@@ -1,0 +1,44 @@
+{
+  "name": "Flora — Cache Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "flora-cache",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-cache",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst { operation, id, data } = body;\n\n// Get static data as our cache store\nconst workflowStaticData = $getWorkflowStaticData('global');\nif (!workflowStaticData.plants) workflowStaticData.plants = {};\n\nconst CACHE_TTL_DAYS = 30;\n\nfunction slugify(str) {\n  return (str || '').toLowerCase().replace(/\\s+/g, '-').replace(/[^a-z0-9-]/g, '');\n}\n\nfunction isExpired(entry) {\n  if (!entry?.expires_at) return true;\n  return new Date(entry.expires_at) < new Date();\n}\n\nfunction ageDays(entry) {\n  return Math.floor((Date.now() - new Date(entry.created_at).getTime()) / 86400000);\n}\n\nif (operation === 'GET') {\n  const key = slugify(id);\n  let found = null;\n\n  // Direct key lookup\n  if (workflowStaticData.plants[key]) {\n    found = workflowStaticData.plants[key];\n  } else {\n    // Alias search\n    for (const [k, entry] of Object.entries(workflowStaticData.plants)) {\n      const aliases = (entry.name?.aliases || []).map(a => slugify(a));\n      if (aliases.includes(key) || slugify(entry.name?.common) === key) {\n        found = entry;\n        break;\n      }\n    }\n  }\n\n  if (!found) {\n    return [{ json: { found: false, reason: 'not_in_cache', suggestion: 'enrichment_agent' } }];\n  }\n  if (isExpired(found)) {\n    delete workflowStaticData.plants[slugify(found.id)];\n    return [{ json: { found: false, reason: 'expired', suggestion: 'enrichment_agent' } }];\n  }\n  return [{ json: { found: true, data: found, age_days: ageDays(found), source: found.source } }];\n}\n\nif (operation === 'SET') {\n  const now = new Date();\n  const expires = new Date(now);\n  expires.setDate(expires.getDate() + CACHE_TTL_DAYS);\n  const key = slugify(data.id || data.name?.common || '');\n  const entry = { ...data, id: key, created_at: now.toISOString(), updated_at: now.toISOString(), expires_at: expires.toISOString() };\n  workflowStaticData.plants[key] = entry;\n  return [{ json: { success: true, id: key } }];\n}\n\nif (operation === 'DELETE') {\n  delete workflowStaticData.plants[slugify(id)];\n  return [{ json: { success: true } }];\n}\n\nif (operation === 'LIST') {\n  const entries = Object.values(workflowStaticData.plants);\n  return [{ json: { entries, count: entries.length } }];\n}\n\nreturn [{ json: { error: 'Unknown operation', operation } }];"
+      },
+      "id": "cache-operations",
+      "name": "Cache Operations",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Cache Operations", "type": "main", "index": 0 }]] },
+    "Cache Operations": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}
