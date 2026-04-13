@@ -1,0 +1,27 @@
+{% comment %}
+  Flora Chatbot — Shopify App Embed Block
+  MIT License — packages/widget/shopify/
+{% endcomment %}
+
+{% assign flora_session_id = 'flora-' | append: shop.permanent_domain | append: '-' | append: customer.id | default: 'anon' | append: '-' | append: 'now' | date: '%s' %}
+{% assign flora_timestamp = 'now' | date: '%s' %}
+{% assign flora_token_payload = flora_session_id | append: '|' | append: flora_timestamp %}
+
+<div
+  id="flora-chatbot-root"
+  data-flora-token="{{ flora_token_payload | hmac_sha256: shop.metafields.flora.webhook_secret }}"
+  data-flora-session="{{ flora_session_id }}"
+  data-flora-timestamp="{{ flora_timestamp }}"
+  data-flora-shop="{{ shop.permanent_domain }}"
+  data-flora-language="{{ request.locale.iso_code | slice: 0, 2 }}"
+  data-flora-customer="{{ customer.id | default: '' }}"
+  style="display:none;"
+></div>
+
+<!-- Honeypot (invisible, only bots fill this) -->
+<div style="position:absolute;left:-9999px;top:-9999px;overflow:hidden;" aria-hidden="true">
+  <input type="text" name="website" id="flora-hp" tabindex="-1" autocomplete="off" value="">
+</div>
+
+<link rel="stylesheet" href="{{ 'flora-widget.css' | asset_url }}">
+<script src="{{ 'flora-widget.js' | asset_url }}" defer></script>

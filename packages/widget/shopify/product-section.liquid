@@ -1,0 +1,142 @@
+{% comment %}
+  Flora Chatbot — Product Page Section
+  Embeds a contextual chat panel directly on product pages.
+  MIT License — packages/widget/shopify/
+{% endcomment %}
+
+{% assign flora_session_id = 'flora-' | append: shop.permanent_domain | append: '-' | append: customer.id | default: 'anon' | append: '-' | append: 'now' | date: '%s' %}
+{% assign flora_timestamp = 'now' | date: '%s' %}
+{% assign flora_token_payload = flora_session_id | append: '|' | append: flora_timestamp %}
+
+<div class="flora-product-embed" data-product-id="{{ product.id }}" data-product-handle="{{ product.handle }}">
+  <div class="flora-product-embed-header">
+    <span>🌿 Ask Flora about this plant</span>
+  </div>
+
+  <div
+    id="flora-product-root"
+    data-flora-token="{{ flora_token_payload | hmac_sha256: shop.metafields.flora.webhook_secret }}"
+    data-flora-session="{{ flora_session_id }}"
+    data-flora-timestamp="{{ flora_timestamp }}"
+    data-flora-language="{{ request.locale.iso_code | slice: 0, 2 }}"
+    data-flora-product="{{ product.title }}"
+    data-flora-product-id="{{ product.id }}"
+  ></div>
+
+  <div class="flora-product-messages" id="flora-product-messages"></div>
+
+  <div class="flora-product-quick-questions">
+    <button class="flora-quick-btn" data-question="How do I care for {{ product.title }}?">Care tips</button>
+    <button class="flora-quick-btn" data-question="Is {{ product.title }} safe for pets?">Pet safe?</button>
+    <button class="flora-quick-btn" data-question="How much light does {{ product.title }} need?">Light needs</button>
+  </div>
+
+  <div class="flora-product-input-row">
+    <input type="text" class="flora-product-input" placeholder="Ask about {{ product.title }}...">
+    <button class="flora-product-send">Ask</button>
+  </div>
+</div>
+
+<style>
+.flora-product-embed {
+  border: 1px solid #E2EDE0;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 24px 0;
+  background: #F8FAF7;
+  font-family: system-ui, sans-serif;
+}
+.flora-product-embed-header {
+  font-weight: 600;
+  color: #2D5A27;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+.flora-product-messages {
+  min-height: 60px;
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+.flora-product-quick-questions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.flora-product-input-row {
+  display: flex;
+  gap: 8px;
+}
+.flora-product-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #E2EDE0;
+  border-radius: 20px;
+  font-size: 13px;
+  outline: none;
+}
+.flora-product-input:focus { border-color: #2D5A27; }
+.flora-product-send {
+  padding: 8px 16px;
+  background: #2D5A27;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.flora-product-send:hover { background: #4A7C43; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const root      = document.getElementById('flora-product-root');
+  const messages  = document.getElementById('flora-product-messages');
+  const input     = document.querySelector('.flora-product-input');
+  const sendBtn   = document.querySelector('.flora-product-send');
+  const quickBtns = document.querySelectorAll('[data-question]');
+
+  if (!root) return;
+
+  const token     = root.dataset.floraToken;
+  const sessionId = root.dataset.floraSession;
+  const lang      = root.dataset.floraLanguage || 'en';
+  const product   = root.dataset.floraProduct;
+
+  function appendMsg(role, text) {
+    const p = document.createElement('p');
+    p.style.cssText = role === 'user'
+      ? 'text-align:right;background:#2D5A27;color:white;padding:6px 10px;border-radius:10px;margin:4px 0;font-size:13px;display:inline-block;float:right;clear:both;max-width:90%;'
+      : 'background:white;padding:6px 10px;border-radius:10px;margin:4px 0;font-size:13px;display:inline-block;clear:both;max-width:90%;border:1px solid #E2EDE0;';
+    p.textContent = text;
+    messages.appendChild(p);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  async function ask(question) {
+    if (!question.trim()) return;
+    appendMsg('user', question);
+    input.value = '';
+
+    try {
+      const res = await fetch('/apps/flora/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Flora-Token': token || '',
+        },
+        body: JSON.stringify({ sessionId, message: question, language: lang, context: product }),
+      });
+      const data = await res.json();
+      appendMsg('bot', data.reply || 'Something went wrong.');
+    } catch {
+      appendMsg('bot', lang === 'es' ? 'Error al conectar. Intenta de nuevo.' : 'Connection error. Please try again.');
+    }
+  }
+
+  sendBtn.addEventListener('click', () => ask(input.value));
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') ask(input.value); });
+  quickBtns.forEach(btn => btn.addEventListener('click', () => ask(btn.dataset.question)));
+});
+</script>

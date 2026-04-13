@@ -1,0 +1,58 @@
+{
+  "name": "Flora — Security Gate (Sub-workflow)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ─── 1. CORS Check ───────────────────────────────────────────────────────────\nconst input = $input.first().json;\nconst headers = input.headers || {};\nconst body    = input.body    || input;\n\nconst ALLOWED_ORIGINS = (process.env.FLORA_ALLOWED_ORIGINS || '').split(',').map(o => o.trim());\nconst origin = headers['origin'] || headers['Origin'] || '';\n\nif (ALLOWED_ORIGINS.length && !ALLOWED_ORIGINS.includes(origin)) {\n  // Log and block\n  return [{ json: { blocked: true, status: 403, reason: 'cors', origin } }];\n}\n\n// ─── 2. Honeypot Check ───────────────────────────────────────────────────────\nconst honeypot = headers['x-flora-honeypot'] || body.honeypot || '';\nif (honeypot !== '') {\n  // Silent block — don't reveal to attacker\n  return [{ json: { blocked: true, status: 403, reason: 'bot' } }];\n}\n\n// ─── 3. Token HMAC Validation ────────────────────────────────────────────────\nconst crypto = require('crypto');\nconst SECRET   = process.env.FLORA_HMAC_SECRET || '';\nconst TOKEN_TTL_HOURS = parseInt(process.env.FLORA_TOKEN_EXPIRY_HOURS || '2', 10);\n\nconst tokenHeader = headers['x-flora-token'] || '';\nconst [sessionId, timestamp, signature] = tokenHeader.split('.');\n\nif (!sessionId || !timestamp || !signature) {\n  return [{ json: { blocked: true, status: 401, reason: 'invalid_token', log: true, ip: headers['x-forwarded-for'] || '', sessionId: sessionId || '' } }];\n}\n\nconst tokenAge = (Date.now() / 1000) - parseInt(timestamp, 10);\nif (tokenAge > TOKEN_TTL_HOURS * 3600) {\n  return [{ json: { blocked: true, status: 401, reason: 'invalid_token', log: true, ip: headers['x-forwarded-for'] || '', sessionId } }];\n}\n\nconst expected = crypto.createHmac('sha256', SECRET).update(sessionId + '|' + timestamp).digest('hex');\nif (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {\n  return [{ json: { blocked: true, status: 401, reason: 'invalid_token', log: true, ip: headers['x-forwarded-for'] || '', sessionId } }];\n}\n\n// ─── 4. Cooldown Check ───────────────────────────────────────────────────────\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.failedAuth) staticData.failedAuth = {};\n\nconst sessionFails = staticData.failedAuth[sessionId] || { count: 0, since: Date.now() };\nconst COOLDOWN_MS = 5 * 60 * 1000;\nif (sessionFails.count >= 3 && (Date.now() - sessionFails.since) < COOLDOWN_MS) {\n  return [{ json: { blocked: true, status: 429, reason: 'cooldown' } }];\n}\n\n// ─── 5. Rate Limit ───────────────────────────────────────────────────────────\nconst MAX_MSGS = parseInt(process.env.FLORA_RATE_LIMIT_MESSAGES || '20', 10);\nconst WINDOW_MS = parseInt(process.env.FLORA_RATE_LIMIT_WINDOW_HOURS || '1', 10) * 3600000;\n\nif (!staticData.rateLimits) staticData.rateLimits = {};\nconst rl = staticData.rateLimits[sessionId] || { count: 0, since: Date.now() };\n\nif ((Date.now() - rl.since) > WINDOW_MS) {\n  rl.count = 0;\n  rl.since = Date.now();\n}\nrl.count++;\nstaticData.rateLimits[sessionId] = rl;\n\nif (rl.count > MAX_MSGS) {\n  return [{ json: { blocked: true, status: 429, reason: 'rate_limit' } }];\n}\n\n// ─── 6. Image Size Check ─────────────────────────────────────────────────────\nconst MAX_IMAGE_MB = parseFloat(process.env.FLORA_MAX_IMAGE_SIZE_MB || '2');\nif (body.image?.base64) {\n  const bytes = (body.image.base64.length * 3) / 4;\n  if (bytes > MAX_IMAGE_MB * 1024 * 1024) {\n    return [{ json: { blocked: true, status: 413, reason: 'image_too_large' } }];\n  }\n}\n\n// ─── 7. Input Sanitization ───────────────────────────────────────────────────\nconst MAX_LEN = parseInt(process.env.FLORA_MAX_MESSAGE_LENGTH || '1000', 10);\nlet message = body.message || '';\n\nif (message.length > MAX_LEN) {\n  message = message.slice(0, MAX_LEN);\n}\n// Strip HTML tags\nmessage = message.replace(/<[^>]*>/g, '');\n// Normalize unicode\nmessage = message.normalize('NFC');\n\n// ─── 8. Prompt Injection Filter ──────────────────────────────────────────────\nconst JAILBREAK_PATTERNS = [\n  /ignore.*(?:previous|all|your).*instructions/i,\n  /forget.*(?:everything|rules|system)/i,\n  /you.*are.*now.*(?:DAN|evil|unrestricted)/i,\n  /reveal.*(?:system|prompt|instructions|api|key)/i,\n  /act.*as.*(?:if|though).*(?:no|without).*rules/i,\n  /pretend.*(?:you|I).*(?:admin|developer|anthropic)/i,\n  /bypass.*(?:safety|restrictions|filters)/i,\n  /repeat.*(?:everything|all).*(?:above|before)/i,\n  /what.*(?:is|are).*your.*(?:instructions|rules|prompt)/i,\n  /translate.*(?:system|prompt).*to/i,\n  /(?:sudo|admin|root).*mode/i,\n  /disregard.*(?:all|previous)/i,\n];\n\nconst isInjection = JAILBREAK_PATTERNS.some(p => p.test(message));\nif (isInjection) {\n  // Don't reveal detection — respond as if normal but redirect\n  const lang = body.language || 'en';\n  const safeReply = lang === 'es'\n    ? 'Solo puedo ayudarte con plantas y pedidos. ¿En qué puedo ayudarte?'\n    : 'I can only help you with plants and orders. How can I assist you?';\n  return [{ json: { blocked: true, status: 200, reason: 'injection', safe_reply: safeReply } }];\n}\n\n// ─── All checks passed ────────────────────────────────────────────────────────\nreturn [{ json: { blocked: false, sessionId, message, body: { ...body, message } } }];"
+      },
+      "id": "security-checks",
+      "name": "Security Checks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{ $json.blocked }}", "value2": true }]
+        }
+      },
+      "id": "if-blocked",
+      "name": "Blocked?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.safe_reply ? { reply: $json.safe_reply } : { error: 'Request blocked', status: $json.status } }}",
+        "options": { "responseCode": "={{ $json.status || 403 }}" }
+      },
+      "id": "block-response",
+      "name": "Block Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 200]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": { "main": [[{ "node": "Security Checks", "type": "main", "index": 0 }]] },
+    "Security Checks": { "main": [[{ "node": "Blocked?", "type": "main", "index": 0 }]] },
+    "Blocked?": {
+      "main": [
+        [{ "node": "Block Response", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}
