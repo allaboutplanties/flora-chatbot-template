@@ -1,0 +1,52 @@
+{
+  "name": "Flora — Config GET",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "flora-config",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-config-get",
+      "name": "Webhook GET Config",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $input.first().json.query || {};\nconst tenantId = query.tenant || 'default';\n\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.configs) staticData.configs = {};\n\nconst config = staticData.configs[tenantId] || getDefaultConfig(tenantId);\n\nfunction getDefaultConfig(id) {\n  return {\n    tenant_id: id,\n    bot: {\n      name: 'Flora',\n      avatar_url: '',\n      avatar_fallback: '🌿',\n      welcome_message: {\n        en: \"Hi! I'm Flora 🌿 How can I help you with your plants today?\",\n        es: '¡Hola! Soy Flora 🌿 ¿En qué puedo ayudarte con tus plantas hoy?'\n      }\n    },\n    appearance: {\n      colors: {\n        primary: '#2D5A27', secondary: '#4A7C43', accent: '#8FBC8F',\n        user_bubble: '#2D5A27', bot_bubble: '#F0F5EF',\n        background: '#FFFFFF', text: '#333333'\n      },\n      typography: { font_family: 'system-ui', font_size: '14px' },\n      borders: { radius: '16px', style: 'rounded' },\n      fab: { shape: 'circle', size: 'md', label: '' },\n      widget: { position: 'bottom-right', mode: 'floating', width: '380px', height: '580px' }\n    },\n    features: { vision: true, light_meter: true, orders: true, quick_actions: true, white_label: false },\n    seasonal: {\n      enabled: true, auto_switch: true, current_override: null,\n      themes: {\n        halloween:  { enabled: true, start: '10-15', end: '11-01' },\n        christmas:  { enabled: true, start: '12-01', end: '12-31' },\n        valentines: { enabled: true, start: '02-01', end: '02-15' },\n        spring:     { enabled: true, start: '03-20', end: '06-20' },\n        summer:     { enabled: true, start: '06-21', end: '09-22' }\n      }\n    }\n  };\n}\n\nreturn [{ json: config }];"
+      },
+      "id": "get-config",
+      "name": "Get Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" },
+              { "name": "Cache-Control", "value": "max-age=300" }
+            ]
+          }
+        }
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "Webhook GET Config": { "main": [[{ "node": "Get Config", "type": "main", "index": 0 }]] },
+    "Get Config": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

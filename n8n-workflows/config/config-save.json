@@ -1,0 +1,44 @@
+{
+  "name": "Flora — Config SAVE",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "flora-config-save",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-config-save",
+      "name": "Webhook SAVE Config",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst { tenant_id, config } = body;\n\nif (!tenant_id || !config) {\n  return [{ json: { success: false, error: 'tenant_id and config are required' } }];\n}\n\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.configs) staticData.configs = {};\n\nstaticData.configs[tenant_id] = {\n  ...config,\n  tenant_id,\n  updated_at: new Date().toISOString()\n};\n\nreturn [{ json: { success: true, tenant_id, updated_at: staticData.configs[tenant_id].updated_at } }];"
+      },
+      "id": "save-config",
+      "name": "Save Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "Webhook SAVE Config": { "main": [[{ "node": "Save Config", "type": "main", "index": 0 }]] },
+    "Save Config": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}
